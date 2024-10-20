@@ -1,0 +1,24 @@
+name: Analyze Deno Imports
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deno:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをチェックアウト
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      # Denoをセットアップ
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+
+      # インポートマップを読み取ってモジュール情報を表示
+      - name: Analyze Import Map
+        run: |
+          deno run -A analyze_imports.ts
