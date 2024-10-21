@@ -36,5 +36,5 @@ jobs:
           max_tokens: 10000
           MAX_PATCH_LENGTH: 10000
 
-      - name: Output the summary
-        run: echo "$(cat summary.txt)"  # ファイルに出力せずに直接表示
+      - name: Debug Output
+        run: ls -la  # summary.txtファイルが生成されているか確認
