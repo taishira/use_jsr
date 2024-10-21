@@ -34,7 +34,4 @@ jobs:
       
       # 標準出力での確認
       - name: Debug Output
-        run: |
-          echo "Debugging Output"
-          ls -la
-          cat all_code.txt
+        run: cat all_code.txt
