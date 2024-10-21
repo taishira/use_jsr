@@ -18,7 +18,8 @@ jobs:
 
       - name: Get all code
         run: |
-          find . -type f ! -path './.git/*' -exec cat {} + > all_code.txt  # リポジトリ内のすべてのファイルを取得して1つのファイルにまとめる
+          find . -type f ! -path './.git/*' -not -name 'all_code.txt' -exec cat {} + > all_code.txt  # 'all_code.txt' を除外してファイルをまとめる
+
 
       - name: Generate summary using OpenAI
         uses: anc95/ChatGPT-CodeReview@main
