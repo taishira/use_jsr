@@ -7,7 +7,7 @@ permissions:
 on:
   push:
     branches:
-      - main  # メインブランチへのプッシュ時に実行（他のブランチも指定可能）
+      - main  # メインブランチへのプッシュ時に実行
 
 jobs:
   summarize:
@@ -15,26 +15,26 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v2
-      
-      - name: Get code diff
+
+      - name: Get all code
         run: |
-          git diff HEAD^ HEAD > code_diff.txt  # 最新のコミットとその1つ前のコミットの差分を取得してファイルに保存
+          find . -type f ! -path './.git/*' -exec cat {} + > all_code.txt  # リポジトリ内のすべてのファイルを取得して1つのファイルにまとめる
 
       - name: Generate summary using OpenAI
         uses: anc95/ChatGPT-CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          LANGUAGE: English  # 言語をEnglishに変更
+          LANGUAGE: English  # 言語をEnglishに設定
           OPENAI_API_ENDPOINT: https://api.openai.com/v1
           MODEL: gpt-3.5-turbo
           PROMPT: |
-            Please summarize the following code changes in a concise manner:
-            ```$(cat code_diff.txt)```
+            Please summarize the following codebase in a concise manner:
+            ```$(cat all_code.txt)```
           top_p: 1
           temperature: 1
           max_tokens: 10000
           MAX_PATCH_LENGTH: 10000
 
       - name: Output the summary
-        run: cat summary.txt  # ChatGPTが生成した要約を表示（taishira/use_jsrがsummary.txtに結果を出力することを仮定）
+        run: cat summary.txt  # ChatGPTが生成した要約を表示（anc95/ChatGPT-CodeReviewがsummary.txtに結果を出力することを仮定）
