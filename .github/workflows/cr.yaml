@@ -18,7 +18,7 @@ jobs:
 
       - name: Get all code
         run: |
-          find . -type f ! -path './.git/*' -not -name 'all_code.txt' -exec cat {} + > all_code.txt
+          find . -type f \( -name "*.ts" -o -name "*.json" -o -name "*.txt" \) ! -path './.git/*' -not -name 'all_code.txt' -exec cat {} + > all_code.txt
 
       - name: Generate summary using OpenAI
         uses: anc95/ChatGPT-CodeReview@main
@@ -31,7 +31,6 @@ jobs:
           PROMPT: |
             Please summarize the following codebase in a concise manner:
             ```$(cat all_code.txt)```
-      
-      # 標準出力での確認
-      - name: Debug Output
-        run: cat all_code.txt
+
+      - name: Output summary directly
+        run: cat all_code.txt  # ファイル内容を再度確認、コンソールに表示
