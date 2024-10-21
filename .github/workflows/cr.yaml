@@ -32,6 +32,6 @@ jobs:
             Please summarize the following codebase in a concise manner:
             ```$(cat all_code.txt)```
       
-      # 標準出力を確認するステップ
-      - name: Output OpenAI Response
-        run: echo "Check if there is any output"
+      # ファイルに保存せず、標準出力に要約を直接表示
+      - name: Output summary directly
+        run: echo "Summary: $(cat all_code.txt)"
