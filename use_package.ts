@@ -13,5 +13,5 @@ Deno.writeFileSync("screenshot.png", screenshot);
 
 console.log("shot saved")
 
-// Close the browser
+// Close the browser close close close
 await browser.close();
