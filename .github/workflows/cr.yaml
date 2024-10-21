@@ -1,9 +1,10 @@
-name: Code Summary on Push
+name: Summarize TypeScript Files on Push
 
 permissions:
   contents: read
   pull-requests: write
 
+# pushイベント時にトリガー
 on:
   push:
     branches:
@@ -16,21 +17,26 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      - name: Get all code
+      # .tsファイルを全て取得して一つのファイルに結合
+      - name: Gather TypeScript files
         run: |
-          find . -type f \( -name "*.ts" -o -name "*.json" -o -name "*.txt" \) ! -path './.git/*' -not -name 'all_code.txt' -exec cat {} + > all_code.txt
+          find . -name "*.ts" -not -path "./.git/*" -exec cat {} + > all_ts_code.txt
 
+      # OpenAI APIを使用して、ファイル内容を要約
       - name: Generate summary using OpenAI
-        uses: anc95/ChatGPT-CodeReview@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          LANGUAGE: English
-          OPENAI_API_ENDPOINT: https://api.openai.com/v1
-          MODEL: gpt-3.5-turbo
-          PROMPT: |
-            Please summarize the following codebase in a concise manner:
-            ```$(cat all_code.txt)```
+        run: |
+          curl https://api.openai.com/v1/chat/completions \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+          -d '{
+            "model": "gpt-3.5-turbo",
+            "messages": [
+              {"role": "system", "content": "You are an assistant that summarizes TypeScript code."},
+              {"role": "user", "content": "Please summarize the following TypeScript code: ```'"$(cat all_ts_code.txt)"'```"}
+            ],
+            "max_tokens": 1000
+          }' > summary.txt
 
-      - name: Output summary directly
-        run: cat all_code.txt  # ファイル内容を再度確認、コンソールに表示
+      # 要約結果を表示
+      - name: Output summary
+        run: cat summary.txt
