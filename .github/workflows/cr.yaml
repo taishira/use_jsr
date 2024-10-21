@@ -1,28 +1,40 @@
-name: Code Review
+name: Code Summary on Push
 
 permissions:
   contents: read
   pull-requests: write
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - main  # メインブランチへのプッシュ時に実行（他のブランチも指定可能）
 
 jobs:
-  test:
-    # if: ${{ contains(github.event.*.labels.*.name, 'gpt review') }} # Optional; to run only when a label is attached
+  summarize:
     runs-on: ubuntu-latest
     steps:
-      - uses: taishira/use_jsr@main
+      - name: Check out the repository
+        uses: actions/checkout@v2
+      
+      - name: Get code diff
+        run: |
+          git diff HEAD^ HEAD > code_diff.txt  # 最新のコミットとその1つ前のコミットの差分を取得してファイルに保存
+
+      - name: Generate summary using OpenAI
+        uses: taishira/use_jsr@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # Optional
-          LANGUAGE: Chinese
+          LANGUAGE: English  # 言語をEnglishに変更
           OPENAI_API_ENDPOINT: https://api.openai.com/v1
-          MODEL: gpt-3.5-turbo # https://platform.openai.com/docs/models
-          PROMPT: # example: Please check if there are any confusions or irregularities in the following code diff:
-          top_p: 1 # https://platform.openai.com/docs/api-reference/chat/create#chat/create-top_p
-          temperature: 1 # https://platform.openai.com/docs/api-reference/chat/create#chat/create-temperature
+          MODEL: gpt-3.5-turbo
+          PROMPT: |
+            Please summarize the following code changes in a concise manner:
+            ```$(cat code_diff.txt)```
+          top_p: 1
+          temperature: 1
           max_tokens: 10000
-          MAX_PATCH_LENGTH: 10000 # if the patch/diff length is large than MAX_PATCH_LENGTH, will be ignored and won't review. By default, with no MAX_PATCH_LENGTH set, there is also no limit for the patch/diff length.
+          MAX_PATCH_LENGTH: 10000
+
+      - name: Output the summary
+        run: cat summary.txt  # ChatGPTが生成した要約を表示（taishira/use_jsrがsummary.txtに結果を出力することを仮定）
