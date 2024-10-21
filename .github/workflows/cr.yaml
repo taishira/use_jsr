@@ -21,6 +21,7 @@ jobs:
           find . -type f ! -path './.git/*' -not -name 'all_code.txt' -exec cat {} + > all_code.txt
 
       - name: Generate summary using OpenAI
+        id: summarize_code  # IDを付けることで、後で結果を参照可能に
         uses: anc95/ChatGPT-CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,6 +33,5 @@ jobs:
             Please summarize the following codebase in a concise manner:
             ```$(cat all_code.txt)```
       
-      # ファイルに保存せず、標準出力に要約を直接表示
       - name: Output summary directly
-        run: echo "Summary: $(cat all_code.txt)"
+        run: echo "${{ steps.summarize_code.outputs.summary }}"  # OpenAIの出力結果を直接表示
