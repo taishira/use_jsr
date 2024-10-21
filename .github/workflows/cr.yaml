@@ -21,7 +21,7 @@ jobs:
           git diff HEAD^ HEAD > code_diff.txt  # 最新のコミットとその1つ前のコミットの差分を取得してファイルに保存
 
       - name: Generate summary using OpenAI
-        uses: taishira/use_jsr@main
+        uses: anc95/ChatGPT-CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
